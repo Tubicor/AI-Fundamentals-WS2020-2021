@@ -34,8 +34,8 @@ class Neuron:
         self.w = np.r_[self.w,[theta]]
         self.w = np.r_[0,self.w]
     def compute(self,x):
-        print("x:",x)
-        print("w:",self.w)
+        #print("x:",x)
+        #print("w:",self.w)
         state = x @ self.w
         #print("state",self.state)
         return np.array(list(map(self.func,state)));
