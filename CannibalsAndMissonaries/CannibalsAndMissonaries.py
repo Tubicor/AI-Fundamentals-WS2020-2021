@@ -63,18 +63,22 @@ def checkStates(newStates,visitedStates):
     return notVisitedStates
 
 def main():
+    #create start State
     start = State(3,3,0,0,"left",None)
     visitedStates = []
     visitedStates.append(start)
     iterator = 0
+    #Loop for BFS search for State(0,0,3,3,"right")
     while True:
         expandedStates = expand(visitedStates[iterator])
         visitedStates.extend(checkStates(expandedStates,visitedStates))
         iterator += 1
         if(visitedStates.__contains__(State(0,0,3,3,"right",None))):
             break
+    #get the desired State        
     finishState = visitedStates[visitedStates.index(State(0,0,3,3,"right",None))]
     iteratorState = finishState
+    #print the way from the End State to the Start State
     while True:
         print(iteratorState)
         iteratorState = iteratorState.predecessor
