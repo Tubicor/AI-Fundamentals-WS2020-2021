@@ -4,8 +4,9 @@ import pygame
 from typing import Type
 import skfuzzy as fuzz
 import skfuzzy.control as fuzzcontrol
+import numpy as np
 
-FPS = 30
+FPS = 60
 
 
 class Board:
@@ -229,11 +230,11 @@ class FuzzyPlayer(Player):
         farnormal = 35
         halfCenter = 5
         safeCenter = 0
-        x_dist["farRight"]=fuzz.trapmf(x_dist.universe,[-edge,-edge,-farnormal,-farnormal+10])
-        x_dist["right"]=fuzz.trapmf(x_dist.universe,[-farnormal,-farnormal+10,-halfCenter,-safeCenter])
+        x_dist["farRight"]=fuzz.trapmf(x_dist.universe,[-edge,-edge,-farnormal,-farnormal+1])
+        x_dist["right"]=fuzz.trapmf(x_dist.universe,[-farnormal,-farnormal+1,-halfCenter,-safeCenter])
         x_dist["center"]=fuzz.trapmf(x_dist.universe,[-halfCenter,-safeCenter,safeCenter,halfCenter])
-        x_dist["left"]=fuzz.trapmf(x_dist.universe,[safeCenter,halfCenter,farnormal-10,farnormal])
-        x_dist["farLeft"]=fuzz.trapmf(x_dist.universe,[farnormal-10,farnormal,edge,edge])
+        x_dist["left"]=fuzz.trapmf(x_dist.universe,[safeCenter,halfCenter,farnormal-1,farnormal])
+        x_dist["farLeft"]=fuzz.trapmf(x_dist.universe,[farnormal-1,farnormal,edge,edge])
 
         y_dist = fuzz.control.Antecedent(range(0,400),"y_dist")
         y_dist["far"]=fuzz.trapmf(y_dist.universe,[200,300,400,400])
@@ -245,16 +246,26 @@ class FuzzyPlayer(Player):
         racket_position["center"]=fuzz.trapmf(racket_position.universe,[210,350,450,590])
         racket_position["right"]=fuzz.trapmf(racket_position.universe,[450,590,800,800])
 
-        speed = fuzz.control.Consequent(range(-10,10),"speed")
+        speed = fuzz.control.Consequent(np.arange(-10,10,0.1),"speed")
         edge = 10
         farnormal = 9
         halfCenter = 7
         safeCenter = 6
-        speed["goFarLeft"]=fuzz.trapmf(speed.universe,[-edge,-edge,-farnormal,-farnormal+1])
-        speed["goLeft"]=fuzz.trapmf(speed.universe,[-farnormal,-farnormal+1,-halfCenter,-safeCenter])
-        speed["stay"]=fuzz.trapmf(speed.universe,[-halfCenter,-safeCenter,safeCenter,halfCenter])
-        speed["goRight"]=fuzz.trapmf(speed.universe,[safeCenter,halfCenter,farnormal-1,farnormal])
-        speed["goFarRight"]=fuzz.trapmf(speed.universe,[farnormal-1,farnormal,edge,edge])
+
+        mamdami = True
+        if(mamdami):
+            speed["goFarLeft"]=fuzz.trapmf(speed.universe,[-edge,-edge,-farnormal,-farnormal+1])
+            speed["goLeft"]=fuzz.trapmf(speed.universe,[-farnormal,-farnormal+1,-halfCenter,-safeCenter])
+            speed["stay"]=fuzz.trapmf(speed.universe,[-halfCenter,-safeCenter,safeCenter,halfCenter])
+            speed["goRight"]=fuzz.trapmf(speed.universe,[safeCenter,halfCenter,farnormal-1,farnormal])
+            speed["goFarRight"]=fuzz.trapmf(speed.universe,[farnormal-1,farnormal,edge,edge])
+        else:
+            speed["goFarLeft"]=fuzz.trimf(speed.universe,[-edge,-edge+0.1,-edge+0.2])
+            speed["goLeft"]=fuzz.trimf(speed.universe,[-farnormal-0.1,-farnormal,-farnormal+0.1])
+            speed["stay"]=fuzz.trimf(speed.universe,[-0.1,0,0.1])
+            speed["goRight"]=fuzz.trimf(speed.universe,[farnormal-0.1,farnormal,farnormal+0.1])
+            speed["goFarRight"]=fuzz.trimf(speed.universe,[edge-0.2,edge-0.1,edge])
+
 
         rules=[]
         rules.append(fuzz.control.Rule((x_dist["farLeft"] | x_dist["left"]) & racket_position["center"] ,speed["goFarLeft"]))
@@ -279,7 +290,6 @@ class FuzzyPlayer(Player):
 
     def act(self, x_diff: int, y_diff: int):
         velocity = self.make_decision(x_diff, y_diff)
-        print(y_diff)
         self.move(self.racket.rect.x + velocity)
 
     def make_decision(self, x_diff: int, y_diff: int):
