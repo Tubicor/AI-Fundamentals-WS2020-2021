@@ -6,7 +6,7 @@ import skfuzzy as fuzz
 import skfuzzy.control as fuzzcontrol
 import numpy as np
 
-FPS = 60
+FPS = 30
 
 
 class Board:
@@ -240,7 +240,7 @@ class FuzzyPlayer(Player):
         y_dist["far"]=fuzz.trapmf(y_dist.universe,[200,300,400,400])
         y_dist["medium"]=fuzz.trapmf(y_dist.universe,[50,100,200,300])
         y_dist["close"]=fuzz.trapmf(y_dist.universe,[0,0,50,100])
-        
+
         racket_position = fuzz.control.Antecedent(range(0,800),"racket_position")
         racket_position["left"]=fuzz.trapmf(racket_position.universe,[0,0,230,350])
         racket_position["center"]=fuzz.trapmf(racket_position.universe,[210,350,450,590])
@@ -271,14 +271,14 @@ class FuzzyPlayer(Player):
         rules.append(fuzz.control.Rule((x_dist["farLeft"] | x_dist["left"]) & racket_position["center"] ,speed["goFarLeft"]))
         rules.append(fuzz.control.Rule(x_dist["center"] & y_dist["far"] & racket_position["center"] ,speed["stay"]))
         rules.append(fuzz.control.Rule((x_dist["farRight"] | x_dist["right"]) & racket_position["center"] ,speed["goFarRight"]))
-        
+
         rules.append(fuzz.control.Rule(y_dist["far"] & racket_position["right"] ,speed["goFarLeft"]))
         rules.append(fuzz.control.Rule(y_dist["far"] & racket_position["left"] ,speed["goFarRight"]))
 
         rules.append(fuzz.control.Rule((x_dist["farLeft"] | x_dist["left"]) & y_dist["medium"],speed["goFarLeft"]))
         rules.append(fuzz.control.Rule(x_dist["center"] & y_dist["medium"],speed["stay"]))
         rules.append(fuzz.control.Rule((x_dist["farRight"] | x_dist["right"]) & y_dist["medium"] ,speed["goFarRight"]))
-        
+
         rules.append(fuzz.control.Rule(x_dist["farLeft"] & y_dist["close"],speed["goFarLeft"]))
         rules.append(fuzz.control.Rule(x_dist["left"] & y_dist["close"],speed["stay"]))
         rules.append(fuzz.control.Rule(x_dist["center"] & y_dist["close"],speed["goLeft"]))
